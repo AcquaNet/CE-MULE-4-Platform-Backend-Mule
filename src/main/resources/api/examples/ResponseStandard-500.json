@@ -1,0 +1,11 @@
+{
+    "apiVersion": "v1",
+    "appName": "fe-mule",
+    "error": {
+        "code": 500,
+        "message": "Invocation of Constructor 'AtinaMicroserviceManager(java.lang.String,java.lang.Integer,java.lang.String,java.lang.String,java.lang.String)' in Class 'com.py.service.AtinaMicroserviceManager' with arguments [java.lang.String servicio, java.lang.Integer puerto, java.lang.String entidad, java.lang.String user, java.lang.String password] resulted in an error.\nExpected arguments are [java.lang.String servicio, java.lang.Integer puerto, java.lang.String entidad, java.lang.String user, java.lang.String password].\nCause: com.py.exception.InternalException - Error with Login: INTERNAL: Error Creating Connection|Error starting client: /home/vsftpd/config/ACQUAAA.propiedades (No such file or directory)||%ExternalServiceException%",
+        "reason": "",
+        "errType": "",
+        "correlationId": "adac70e0-cf31-11ed-84ca-106fd956ebbf"
+    }
+}

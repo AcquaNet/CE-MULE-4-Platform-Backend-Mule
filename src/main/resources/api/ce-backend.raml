@@ -1,0 +1,31 @@
+#%RAML 1.0
+title: CE Platform - APIs
+version: v1
+baseUri: http://ce-platform.com/api
+description: API de integracion.
+protocols:
+  - HTTP
+   
+/v1:
+
+  /status:
+    description: Get Status. Validate-Token-Response.json
+    get:
+      description: Get Status                       
+      responses:
+        200:         
+          body:
+            application/json:
+              description: Respuesta de Status
+              example: !include examples/Status-Response.json            
+        400:
+          body:
+            application/json:
+              description: Error en la solicitud
+              example: !include examples/ResponseStandard-400.json
+        500:
+          body:
+            application/json:
+              description: Error interno del servidor
+              example: !include examples/ResponseStandard-500.json   
+                       

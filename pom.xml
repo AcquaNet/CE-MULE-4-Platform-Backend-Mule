@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.acqua</groupId>
-	<artifactId>cemulebase</artifactId>
+	<artifactId>ce-mule-base</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
@@ -45,6 +45,12 @@
 			<version>1.2.5</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-apikit-module</artifactId>
+			<version>1.11.7</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -74,13 +80,13 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<distributionManagement>
-        <repository>
-            <id>acquanet-central</id>
-            <url>https://jfrog.atina-connection.com/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>acquanet-snapshots</id>
-            <url>https://jfrog.atina-connection.com/artifactory/libs-snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
+		<repository>
+			<id>acquanet-central</id>
+			<url>https://jfrog.atina-connection.com/artifactory/libs-release</url>
+		</repository>
+		<snapshotRepository>
+			<id>acquanet-snapshots</id>
+			<url>https://jfrog.atina-connection.com/artifactory/libs-snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
