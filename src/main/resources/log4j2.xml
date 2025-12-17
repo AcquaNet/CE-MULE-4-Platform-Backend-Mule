@@ -15,6 +15,15 @@
             <SizeBasedTriggeringPolicy size="10 MB"/>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
+
+        <!-- Socket appender for Logstash -->
+        <Socket name="logstash" host="logstash" port="5000" protocol="TCP">
+            <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true">
+                <KeyValuePair key="application" value="ce-mule-base"/>
+                <KeyValuePair key="environment" value="${sys:mule_env:-local}"/>
+                <KeyValuePair key="log_type" value="mule"/>
+            </JsonLayout>
+        </Socket>
     </Appenders>
 
     <Loggers>
@@ -28,6 +37,7 @@
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="file"/>
+            <AppenderRef ref="logstash"/>
         </AsyncRoot>
     </Loggers>
 
