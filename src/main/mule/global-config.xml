@@ -14,6 +14,10 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
  
+ 	<!--  =============================================================== -->
+	<!--  Configuration Properties                                        -->
+	<!--  =============================================================== -->
+	
 	<configuration-properties
 		doc:name="Configuration properties"
 		doc:id="838368d9-1dd5-4587-9668-3820dc06f0d7"

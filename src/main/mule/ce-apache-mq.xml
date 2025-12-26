@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+ 
+	
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="6d93e779-7b4a-4a83-9969-941821b31813" >
+		<jms:active-mq-connection password="b">
+			<jms:factory-configuration brokerUrl="${apachemq.url}" initialRedeliveryDelay="${apachemq.initialRedeliveryDelay}" redeliveryDelay="${apachemq.redeliveryDelay}" maxRedelivery="${apachemq.maxRedelivery}" />
+		</jms:active-mq-connection>
+	</jms:config>
+	
+	<flow name="ce-apache-mq-health-flow" doc:id="e3aa0b13-c51a-4e88-b230-0097b60d2d62" >
+		<jms:publish doc:name="Publish" doc:id="d43e96da-28db-4132-8aee-f19276a0c07c" destination="${apachemq.status.queue.name}" sendCorrelationId="ALWAYS" config-ref="JMS_Config">
+			<jms:message >
+				<jms:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{ 
+	status: 'OK'
+}]]]></jms:body>
+			</jms:message>
+		</jms:publish>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;   "SID": correlationId,&#10;   "apache-mq-alive": true&#10;}]' doc:name="Set Payload" doc:id="c2a5fd2e-03e3-49a4-a393-1318335a7ac6" />
+		<set-variable value='#[output application/java&#10;---&#10;{&#10;"correlationId": correlationId&#10;}]' doc:name="Set Headers" doc:id="962e1b1e-f708-4dc7-911c-8cd9a7a80d46" variableName="outboundHeaders" />
+	</flow>
+</mule>
