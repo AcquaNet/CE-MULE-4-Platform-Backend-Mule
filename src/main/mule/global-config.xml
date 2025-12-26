@@ -32,6 +32,13 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		doc:id="6567d5eb-ac74-4dc1-bd90-3e702c2a3dfd" name="mule_env"
 		value="local" />
 	 
+ 	<!--  =============================================================== -->
+	<!--  Global Configuration Handler                                        -->
+	<!--  =============================================================== -->
+	
+	<configuration doc:name="Configuration"
+		doc:id="888625d8-21ea-45ef-a417-66d32854e820"
+		defaultErrorHandler-ref="ApiKit_Error_Handler" />
 	 
 	<!--  =============================================================== -->
 	<!--  LISTENERS                                                       -->
