@@ -14,10 +14,6 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
  
-    <http:listener-config name="ce-backend-httpListenerConfig">
-        <http:listener-connection host="0.0.0.0" port="8081" />
-    </http:listener-config>
-    
 	<configuration-properties
 		doc:name="Configuration properties"
 		doc:id="838368d9-1dd5-4587-9668-3820dc06f0d7"
@@ -32,4 +28,27 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		doc:id="6567d5eb-ac74-4dc1-bd90-3e702c2a3dfd" name="mule_env"
 		value="local" />
 	 
+	 
+	<!--  =============================================================== -->
+	<!--  LISTENERS                                                       -->
+	<!--  =============================================================== -->
+	 
+	<http:listener-config
+		name="HTTP_Listener_config">
+		<http:listener-connection host="0.0.0.0"
+			port="${http.port}" protocol="HTTP">
+		</http:listener-connection>
+	</http:listener-config>
+	
+	<http:listener-config
+		name="HTTPS_Listener_config">
+		<http:listener-connection host="0.0.0.0"
+			port="${https.port}" protocol="HTTPS">
+			<tls:context enabledProtocols="TLSv1.1,TLSv1.2">
+				<tls:key-store type="jks" path="keystore/keystore.jks"
+					alias="${jks.alias}" keyPassword="${jks.keyPassword}"
+					password="${jks.password}" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
 </mule>
