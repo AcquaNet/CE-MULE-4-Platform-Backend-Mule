@@ -9,7 +9,7 @@ xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft
     <apikit:config name="ce-backend-config" api="ce-backend.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
    
     <flow name="ce-backend-main">
-        <http:listener config-ref="ce-backend-httpListenerConfig" path="/api/*">
+        <http:listener config-ref="HTTPS_Listener_config" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:response>
@@ -22,7 +22,7 @@ xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft
          
     </flow>
     <flow name="ce-backend-console">
-        <http:listener config-ref="ce-backend-httpListenerConfig" path="/console/*">
+        <http:listener config-ref="HTTPS_Listener_config" path="/console/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:response>
