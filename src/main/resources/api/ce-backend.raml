@@ -11,7 +11,12 @@ protocols:
   /status:
     description: Get Status. Validate-Token-Response.json
     get:
-      description: Get Status                       
+      description: Get Status    
+      queryParameters:
+          force-exception:
+            description: Force Exception.
+            type: boolean
+            required: false                   
       responses:
         200:         
           body:
