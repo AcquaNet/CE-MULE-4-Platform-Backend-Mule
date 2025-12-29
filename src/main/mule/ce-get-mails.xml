@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<email:pop3-config name="Email_POP3" doc:name="Email POP3" doc:id="246366f7-33bc-4501-b7c0-12c71074df13" >
+		<email:pop3s-connection host="${pop3_inbound_host}" port="${pop3_inbound_port}" user="${pop3_inbound_user}" password="${pop3_inbound_password}" >
+			<reconnection >
+				<reconnect-forever frequency="4000" />
+			</reconnection>
+			<tls:context enabledProtocols="TLSv1.2">
+				<tls:trust-store path="keystore/truststore.ts" password="${trustore.password}" type="jks" insecure="true"/>
+				<tls:key-store type="jks" path="keystore/keystore.jks" alias="${jks.alias}" keyPassword="${jks.keyPassword}" password="${jks.password}" />
+			</tls:context>
+		</email:pop3s-connection>
+	</email:pop3-config>
+	<flow name="ce-get-mailsFlow" doc:id="a12f1384-e9d7-4e02-bd58-d86e774d63d7" >
+		<email:listener-pop3 doc:name="On New Email - POP3" doc:id="b4a9350f-7932-444b-a9a1-d481bb3c88c2" config-ref="Email_POP3">
+			<scheduling-strategy >
+				<fixed-frequency frequency="30000"/>
+			</scheduling-strategy>
+		</email:listener-pop3>
+		<!-- Logueá algo legible (subject/from) en vez de payload entero -->
+        <logger level="INFO" doc:name="Logger"
+            message="#['POP3 mail => subject=' ++ (payload.subject default 'N/A') ++ ', from=' ++ (payload.from default 'N/A')]"/>
+	</flow>
+</mule>
