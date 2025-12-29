@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:email="http://www.mulesoft.org/schema/mule/email"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
 	<email:pop3-config name="Email_POP3" doc:name="Email POP3" doc:id="246366f7-33bc-4501-b7c0-12c71074df13" >
 		<email:pop3s-connection host="${pop3_inbound_host}" port="${pop3_inbound_port}" user="${pop3_inbound_user}" password="${pop3_inbound_password}" >
 			<reconnection >
@@ -16,14 +17,28 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 			</tls:context>
 		</email:pop3s-connection>
 	</email:pop3-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="3bba0c3a-eb21-4f41-97cf-815ee1edceea" >
+		<file:connection workingDir="/tmp" />
+	</file:config>
 	<flow name="ce-get-mailsFlow" doc:id="a12f1384-e9d7-4e02-bd58-d86e774d63d7" >
 		<email:listener-pop3 doc:name="On New Email - POP3" doc:id="b4a9350f-7932-444b-a9a1-d481bb3c88c2" config-ref="Email_POP3">
 			<scheduling-strategy >
-				<fixed-frequency frequency="30000"/>
+				<fixed-frequency frequency="10000"/>
 			</scheduling-strategy>
 		</email:listener-pop3>
 		<!-- Logueá algo legible (subject/from) en vez de payload entero -->
-        <logger level="INFO" doc:name="Logger"
-            message="#['POP3 mail => subject=' ++ (payload.subject default 'N/A') ++ ', from=' ++ (payload.from default 'N/A')]"/>
+        
+		<set-variable value='#[{&#10;   &#10;   "id": attributes.id,&#10;   "sentDate": attributes.sentDate,&#10;   "subject": attributes.subject,&#10;   "fromAddresses": attributes.fromAddresses,&#10;   "toAddresses": attributes.toAddresses,&#10;   "ccAddresses": attributes.ccAddresses,&#10;   "bccAddresses": attributes.bccAddresses,&#10;   "body": payload.body &#10;}]' doc:name="Save Email" doc:id="9233bdaf-1e66-4fd9-a7f5-9e0b340a6168" variableName="Email" mimeType="application/java" />
+		<set-variable value='#[%dw 2.0&#10;output application/java&#10;var allowed = (p("email_extension_to_process") default "")&#10;              splitBy ","&#10;              map ((x) -&gt; lower(trim(x)) replace "*." with "")&#10;---&#10;(keysOf(payload.attachments default {}))&#10;filter ((name) -&gt;&#10;  !isEmpty(&#10;    allowed filter ((ext) -&gt;&#10;      lower(trim(name)) endsWith ("." ++ ext)&#10;    )&#10;  ) &#10;)]' doc:name="Get File Names Attached" doc:id="67285e4e-357e-4fa8-b7eb-c762733c004d" variableName="filteredAttachments"/>
+		<set-variable value="#[payload.attachments]" doc:name="Get attachments" doc:id="d09b5233-9a58-4de7-a7fa-4d52ad784586" variableName="attachments"/>
+		<foreach doc:name="For Each Attachments" doc:id="c54c261a-8406-42c0-adf9-dd3fa1202042" collection="#[vars.filteredAttachments]">
+			<set-variable value="#[payload]" doc:name="Get File Name" doc:id="04e79adc-b3a7-4e35-a0bd-aae967173440" variableName="FileName	"/>
+			  <set-payload value="#[vars.attachments[vars.FileName] as Binary]"
+               mimeType="application/octet-stream"
+               doc:name="Stream to Binary"/>
+			<file:write doc:name="Write Attachments" doc:id="cc75bd0a-0150-46c8-b147-6f27ebb618c7" config-ref="File_Config" path='#["demoPDF/" ++ vars.fileName]'>
+			</file:write>
+			<logger level="INFO" doc:name="Logger" doc:id="cb899732-fcd3-4cca-9348-e058796441e7" message='#["File: " ++ vars.fileName ++ " - Saved"]'/>
+		</foreach>
 	</flow>
 </mule>
