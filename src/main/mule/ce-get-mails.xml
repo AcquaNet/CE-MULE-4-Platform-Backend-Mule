@@ -22,9 +22,9 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 	
 	<flow name="ce-get-mailsFlow1" doc:id="7bdcb8e9-d019-4c5d-b42e-131efae43f1f" >
 		<email:listener-imap doc:name="On New Email - IMAP" doc:id="58e2dee5-8a7f-43a5-a233-69df34ff1fca" config-ref="Email_IMAPS">
-			<scheduling-strategy >
-				<fixed-frequency frequency="10000"/>
-			</scheduling-strategy>
+			<scheduling-strategy>
+			    <cron expression="${imap_inbound_cron}"/>
+		    </scheduling-strategy>
 		</email:listener-imap>
 				<set-variable value='#[%dw 2.0&#10;output application/java&#10;---     &#10;{&#10;   "id": attributes.number,&#10;   "sentDate": attributes.sentDate,&#10;   "receivedDate": attributes.receivedDate,&#10;   "subject": attributes.subject,&#10;   "fromAddresses": attributes.fromAddresses,&#10;   "toAddresses": attributes.toAddresses,&#10;   "ccAddresses": attributes.ccAddresses,&#10;   "bccAddresses": attributes.bccAddresses&#10;}]' doc:name="Save Email" doc:id="411e6f3b-3f19-47a6-ae11-f0d06d10f215" variableName="EmailReceived" mimeType="application/java" />
 		
