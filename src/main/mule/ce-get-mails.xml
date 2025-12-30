@@ -26,8 +26,10 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 				<fixed-frequency frequency="10000"/>
 			</scheduling-strategy>
 		</email:listener-imap>
-		<logger level="INFO" doc:name="Logger" doc:id="c900bd28-468c-432f-bc1b-223dcda195d4" message="Email"/>
-		<foreach doc:name="For Each Attachments" doc:id="11d2cf8f-65e3-4e47-b179-d7f95fdffe7b" collection="#[entriesOf(payload.attachments)]">
+				<set-variable value='#[%dw 2.0&#10;output application/java&#10;---     &#10;{&#10;   "id": attributes.number,&#10;   "sentDate": attributes.sentDate,&#10;   "receivedDate": attributes.receivedDate,&#10;   "subject": attributes.subject,&#10;   "fromAddresses": attributes.fromAddresses,&#10;   "toAddresses": attributes.toAddresses,&#10;   "ccAddresses": attributes.ccAddresses,&#10;   "bccAddresses": attributes.bccAddresses&#10;}]' doc:name="Save Email" doc:id="411e6f3b-3f19-47a6-ae11-f0d06d10f215" variableName="EmailReceived" mimeType="application/java" />
+		
+		<logger level="INFO" doc:name="Logger" doc:id="c900bd28-468c-432f-bc1b-223dcda195d4" message='#["Email received: " ++ (vars.EmailReceived.id as String) ++ " Date: " ++ vars.EmailReceived.sentDate as String ++ " Subject: " ++ vars.EmailReceived.subject]' />
+		<foreach doc:name="For Each Attachments" doc:id="11d2cf8f-65e3-4e47-b179-d7f95fdffe7b" collection='#[%dw 2.0&#10;output application/java&#10;var allowed = (p("email_extension_to_process") default "")&#10;              splitBy ","&#10;              map ((x) -&gt; lower(trim(x)) replace "*." with "")&#10;---        &#10;entriesOf(payload.attachments)&#10;filter (&#10;    (item, index) -&gt; !isEmpty(&#10;        allowed filter ((ext) -&gt; lower(trim(item.key)) endsWith ("." ++ ext))&#10;    )&#10;)]'>
 			<logger level="INFO" doc:name="Logger" doc:id="113183ad-b123-454b-82cc-e8d9e4c6e24e" message='#["Attachme received: " ++ payload.key]'/>
 			<set-variable value="#[payload.key]" doc:name="Set Variable" doc:id="8a76f4e3-aa78-4b80-bcff-5f538d0c27bc" variableName="fileName"/>
 			<set-payload value="#[payload.value]"
@@ -36,5 +38,6 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 			<file:write doc:name="Write" doc:id="d3713c4e-4abd-4159-9995-49f0997add6b" config-ref="File_Config" path='#["demoPDF/" ++ vars.fileName]'>
 			</file:write>
 		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="f9868a65-1a21-4a2d-a85d-6f0fccaec1fb" message='#["Email processed: " ++ vars.EmailReceived.id as String]'/>
 	</flow>
 </mule>
