@@ -1,0 +1,45 @@
+{
+       "email": "fjgodino@gmail.com",
+       "id": "92455890",
+       "rules": {
+        "rules": [
+          {
+            "fileRule": "^Invoice+([0-9])+(.PDF|.pdf)$",
+            "source": "invoice",
+            "destination": "jde",
+            "metodo": ""
+          },
+          {
+            "fileRule": "^Bank+([0-9])+(.CSV|.csv)$",
+            "source": "check",
+            "destination": "jde",
+            "metodo": ""
+          },
+          {
+            "fileRule": "^Bank+([0-9])+(.TXT|.txt)$",
+            "source": "check",
+            "destination": "jde",
+            "metodo": "NorthBankCheck"
+          },
+          {
+            "fileRule": "^Factura+([0-9])+(.PDF|.pdf)$",
+            "source": "factura",
+            "destination": "jde",
+            "metodo": ""
+          },
+          {
+            "fileRule": "^Remito+([0-9])+(.PDF|.pdf)$",
+            "source": "remito",
+            "destination": "jde",
+            "metodo": ""
+          },
+          {
+            "fileRule": "^Banco+([0-9])+(.CSV|.csv)$",
+            "source": "bank",
+            "destination": "jde",
+            "metodo": ""
+          }
+        ]
+       }
+}
+ 
