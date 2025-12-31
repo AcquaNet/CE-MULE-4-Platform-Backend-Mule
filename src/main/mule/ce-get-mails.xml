@@ -35,9 +35,9 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 		</file:list>
 		<choice doc:name="Choice" doc:id="1629c827-f5dd-4e86-b627-2c715b4f37c7" >
 			<when expression="#[sizeOf(vars.rulesListFile)&gt;0]">
-				<file:read doc:name="Read Rules" doc:id="bc1b0cdb-93aa-429b-aa48-f957b981b63e" config-ref="File_Config" path="#[p('email_rules_folders') ++ p('entidad.id') ++ &quot;/&quot; ++ vars.EmailReceived.fromAddress ++ &quot;.json&quot;]" outputMimeType="application/json" outputEncoding="ISO-8859-1" target="rules"/>
-				<set-variable value="#[read(vars.rules, 'application/json')]" doc:name="Set Rule Config" doc:id="be638ec7-6c44-4c51-9e52-505d953c7336" variableName="rulesConfig"/>
-				<file:write doc:name="Write Email Metadata" doc:id="34a65b80-e623-4e18-9aa1-5b26d7ed22ac" config-ref="File_Config" path="#[p('entidad.id') ++ &quot;/&quot; ++ p('email_folder_to_save_emails') ++ vars.rules.id ++ &quot;_&quot; ++ vars.rules.email ++ &quot;.json&quot;]">
+				<file:read doc:name="Read Rules" doc:id="bc1b0cdb-93aa-429b-aa48-f957b981b63e" config-ref="File_Config" path="#[p('email_rules_folders') ++ p('entidad.id') ++ &quot;/&quot; ++ vars.EmailReceived.fromAddress ++ &quot;.json&quot;]" outputMimeType="application/json" outputEncoding="ISO-8859-1" target="rulesConfig"/>
+				<set-variable value="#[vars.rulesConfig]" doc:name="Set Rules Object" doc:id="b5d9cf37-56db-4b71-9942-a5b2f17f49f1" variableName="rulesConfigObj" />
+				<file:write doc:name="Write Email Metadata" doc:id="34a65b80-e623-4e18-9aa1-5b26d7ed22ac" config-ref="File_Config" path="#[p('entidad.id') ++ &quot;/&quot; ++ p('email_folder_to_save_emails') ++ (vars.rulesConfigObj.id as String) ++ &quot;_&quot; ++ (vars.rulesConfigObj.email  as String) ++ &quot;.json&quot;]">
 			<file:content><![CDATA[#[%dw 2.0
 output application/json
 ---
@@ -56,7 +56,7 @@ vars.EmailReceived ++ {
 	<flow name="ce-get-mails-process-attachments-flow" doc:id="c4d6e130-1e61-4d26-a91a-88b9dd272053" >
 		<foreach doc:name="For Each Attachments" doc:id="11d2cf8f-65e3-4e47-b179-d7f95fdffe7b" collection='#[%dw 2.0&#10;output application/java&#10;var allowed = (p("email_extension_to_process") default "")&#10;              splitBy ","&#10;              map ((x) -&gt; lower(trim(x)) replace "*." with "")&#10;---        &#10;entriesOf(payload.attachments)&#10;filter (&#10;    (item, index) -&gt; !isEmpty(&#10;        allowed filter ((ext) -&gt; lower(trim(item.key)) endsWith ("." ++ ext))&#10;    )&#10;)]'>
 			<logger level="INFO" doc:name="Logger" doc:id="113183ad-b123-454b-82cc-e8d9e4c6e24e" message='#["Attachme received: " ++ payload.key]' />
-			<set-variable value="#[payload.key]" doc:name="Set Attachment File Name" doc:id="8a76f4e3-aa78-4b80-bcff-5f538d0c27bc" variableName="fileName" />
+			<set-variable value='#[%dw 2.0&#10;output application/java&#10;var fileName = payload.key as String&#10;var cfg = vars.rulesConfigObj&#10;var rules = vars.rulesConfigObj.rules&#10;var ts = (vars.email.dateReceived as DateTime) as String {format: "yyyy-MM-dd-HH-mm-ss"}&#10;var matched = (rules filter (r) -&gt; (fileName matches (r.fileRule as String)))[0] default null&#10;fun suffixMetodo(m) = if (isEmpty((m default "") as String)) "" else "_" ++ (m as String)&#10;---&#10;if (matched == null)&#10;  { error: "No rule matched", fileName: fileName }&#10;else&#10;  {&#10;    newName:&#10;      (cfg.id as String)&#10;      ++ "_" ++ (matched.source as String)&#10;      ++ "_" ++ (matched.destination as String)&#10;      ++ suffixMetodo(matched.metodo)&#10;      ++ "_" ++ ts&#10;  }]' doc:name="Set Attachment File Name" doc:id="8a76f4e3-aa78-4b80-bcff-5f538d0c27bc" variableName="fileName" />
 			<set-payload value="#[payload.value]" mimeType="application/octet-stream" doc:name="Set Attachment Value" />
 			<file:write doc:name="Write Attachment To File" doc:id="d3713c4e-4abd-4159-9995-49f0997add6b" config-ref="File_Config" path="#[p('entidad.id') ++ &quot;/&quot; ++ p('email_folder_to_save_attachments') ++ vars.fileName]">
 			</file:write>
