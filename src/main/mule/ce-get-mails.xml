@@ -58,7 +58,7 @@ vars.EmailReceived ++ {
 			<logger level="INFO" doc:name="Logger" doc:id="113183ad-b123-454b-82cc-e8d9e4c6e24e" message='#["Attachme received: " ++ payload.key]' />
 			<set-variable value="#[payload.key]" doc:name="Set Attachment File Name" doc:id="8a76f4e3-aa78-4b80-bcff-5f538d0c27bc" variableName="fileName" />
 			<set-payload value="#[payload.value]" mimeType="application/octet-stream" doc:name="Set Attachment Value" />
-			<file:write doc:name="Write Attachment To File" doc:id="d3713c4e-4abd-4159-9995-49f0997add6b" config-ref="File_Config" path="#[p('entidad.id') ++ &quot;${email_folder_to_save_attachments}&quot; ++ vars.fileName]">
+			<file:write doc:name="Write Attachment To File" doc:id="d3713c4e-4abd-4159-9995-49f0997add6b" config-ref="File_Config" path="#[p('entidad.id') ++ &quot;/&quot; ++ p('email_folder_to_save_attachments') ++ vars.fileName]">
 			</file:write>
 			<logger level="INFO" doc:name="Logger" doc:id="f4cd1491-8ebc-4500-b500-60f30cde0ed1" message="File Saved ${email_folder_root}/${email_folder_to_save_attachments} #[vars.fileName]" />
 		</foreach>
