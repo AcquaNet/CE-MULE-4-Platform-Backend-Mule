@@ -36,7 +36,8 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 		<choice doc:name="Choice" doc:id="1629c827-f5dd-4e86-b627-2c715b4f37c7" >
 			<when expression="#[sizeOf(vars.rulesListFile)&gt;0]">
 				<file:read doc:name="Read Rules" doc:id="bc1b0cdb-93aa-429b-aa48-f957b981b63e" config-ref="File_Config" path="#[p('email_rules_folders') ++ p('entidad.id') ++ &quot;/&quot; ++ vars.EmailReceived.fromAddress ++ &quot;.json&quot;]" outputMimeType="application/json" outputEncoding="ISO-8859-1" target="rules"/>
-				<file:write doc:name="Write Email Metadata" doc:id="34a65b80-e623-4e18-9aa1-5b26d7ed22ac" config-ref="File_Config" path="#[p('entidad.id') ++ p('email_folder_to_save_emails') ++ vars.rules.id ++ &quot;_&quot; ++ vars.rules.email ++ &quot;.json&quot;]">
+				<set-variable value="#[read(vars.rules, 'application/json')]" doc:name="Set Rule Config" doc:id="be638ec7-6c44-4c51-9e52-505d953c7336" variableName="rulesConfig"/>
+				<file:write doc:name="Write Email Metadata" doc:id="34a65b80-e623-4e18-9aa1-5b26d7ed22ac" config-ref="File_Config" path="#[p('entidad.id') ++ &quot;/&quot; ++ p('email_folder_to_save_emails') ++ vars.rules.id ++ &quot;_&quot; ++ vars.rules.email ++ &quot;.json&quot;]">
 			<file:content><![CDATA[#[%dw 2.0
 output application/json
 ---
