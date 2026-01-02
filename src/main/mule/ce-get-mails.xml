@@ -90,6 +90,8 @@ output application/json
 ---
 vars.EmailReceived ++ {
 	"Attachments": vars.AttachmentList
+} ++ {
+	"templates": vars.rulesConfig.templates
 }]]]></jms:body>
 			</jms:message>
 		</jms:publish>
