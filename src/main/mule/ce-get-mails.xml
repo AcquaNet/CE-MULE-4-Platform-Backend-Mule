@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
 	 
 	<email:imap-config name="Email_IMAPS" doc:name="Email IMAP" doc:id="9580aae5-d750-4056-9560-7ad4609e1b59" >
-		<email:imaps-connection host="${imap_inbound_host}" port="${imap_inbound_port}" user="${imap_inbound_user}" password="${imap_inbound_password}" >
+		<email:imaps-connection host="${imap_inbound_host}" port="${imap_inbound_port}" user="${imap_inbound_user}" password="${imap_inbound_password}" connectionTimeout="10" readTimeout="10" writeTimeout="10">
 			<tls:context enabledProtocols="TLSv1.2" >
 				<tls:trust-store path="keystore/truststore.ts" password="${trustore.password}" type="jks" insecure="true" />
 				<tls:key-store type="jks" path="keystore/keystore.jks" alias="${jks.alias}" keyPassword="${jks.keyPassword}" password="${jks.password}" />
