@@ -51,16 +51,12 @@
           else
             "<table>" ++
             "<thead><tr>" ++
-              "<th>Original file</th>" ++
-              "<th>Processed file</th>" ++
-              "<th>Destination path</th>" ++
+              "<th>Original file</th>" ++ 
             "</tr></thead>" ++
             "<tbody>" ++
               ((ok map (e) ->
                 "<tr>" ++
-                  "<td>" ++ (e.key as String) ++ "</td>" ++
-                  "<td>" ++ ((e.value.normalizedName default '') as String) ++ "</td>" ++
-                  "<td>" ++ ((e.value.fileNamePath default '') as String) ++ "</td>" ++
+                  "<td>" ++ (e.key as String) ++ "</td>" ++ 
                 "</tr>"
               ) joinBy "") ++
             "</tbody></table>"
