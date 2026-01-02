@@ -128,7 +128,7 @@ vars.EmailReceived ++ {
 				<logger level="INFO" doc:name="Logger" doc:id="6e8d7101-9ea2-4206-a191-242253c788f1" message="#[payload]" />
 				<parse-template doc:name="Parse Template" doc:id="6f882317-2c33-4f45-ba4a-62db6e54dd5d" target="replyHtml" outputMimeType="text/html" outputEncoding="UTF-8" location="rules/ATINA/config/email-templates/reply-mail-received.html">
 				</parse-template>
-				<email:send doc:name="Send" doc:id="c7c1ba59-a33e-4325-a02a-70065b7f452b" config-ref="Email_SMTP" fromAddress="${main_smtp_user}">
+				<email:send doc:name="Send" doc:id="c7c1ba59-a33e-4325-a02a-70065b7f452b" config-ref="Email_SMTP" fromAddress="${main_smtp_user}" subject="Email received pending processing">
 					<email:to-addresses>
 						<email:to-address value="#[payload.fromAddress]" />
 					</email:to-addresses>
