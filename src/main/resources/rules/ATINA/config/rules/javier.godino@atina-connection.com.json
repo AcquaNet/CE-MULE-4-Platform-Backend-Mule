@@ -1,6 +1,10 @@
 {
        "email": "fjgodino@gmail.com",
        "id": "92455890",
+       "templates": {
+              "email-received": "",
+              "email-processed": ""
+       },
        "rules": [
           {
             "id": 1,
