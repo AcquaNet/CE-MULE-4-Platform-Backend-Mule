@@ -43,7 +43,7 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 	      <email:property key="mail.smtp.writetimeout" value="10000"/>
 	
 	      <!-- Logging útil si querés ver el handshake en detalle -->
-	      <!-- <email:property key="mail.debug" value="true"/> -->
+	      <!-- <email:property key="mail.debug" value="false"/> -->
 	    </email:properties>
 	
 	  </email:smtp-connection>
@@ -77,14 +77,14 @@ vars.EmailReceived ++ {
 	"Attachments": vars.AttachmentList
 }]]]></file:content>
 		</file:write>
-				<logger level="INFO" doc:name="Logger" doc:id="f9868a65-1a21-4a2d-a85d-6f0fccaec1fb" message='#["Email processed: " ++ vars.EmailReceived.id as String]' />
+				<logger level="INFO" doc:name="Logger" doc:id="f9868a65-1a21-4a2d-a85d-6f0fccaec1fb" message='#["Email processed: " ++ vars.EmailReceived.id as String ++ " With Correlation ID: " ++ correlationId as String]' />
 			</when>
 			<otherwise >
 				<logger level="INFO" doc:name="Logger" doc:id="5b6bdb76-2004-4dde-bd20-455f17f85abc" message="There is not rule for this email source"/>
 			</otherwise>
 		</choice>
 		<jms:publish doc:name="Publish - Process Email" doc:id="f0f660a2-5500-4a20-8307-0e07f5d0a3af" config-ref="JMS_Config" destination="${apachemq.email.recepecion.queue.name}" sendCorrelationId="ALWAYS">
-			<jms:message>
+			<jms:message correlationId="#[correlationId]">
 				<jms:body><![CDATA[#[%dw 2.0
 output application/json
 ---
