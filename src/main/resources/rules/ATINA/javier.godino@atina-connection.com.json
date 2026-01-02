@@ -1,45 +1,56 @@
 {
        "email": "fjgodino@gmail.com",
        "id": "92455890",
-       "rules": {
-        "rules": [
+       "rules": [
           {
+            "id": 1,
             "fileRule": "^Invoice+([0-9])+(.PDF|.pdf)$",
             "source": "invoice",
             "destination": "jde",
             "metodo": ""
           },
           {
+            "id": 2,
             "fileRule": "^Bank+([0-9])+(.CSV|.csv)$",
             "source": "check",
             "destination": "jde",
             "metodo": ""
           },
           {
+            "id": 3,
             "fileRule": "^Bank+([0-9])+(.TXT|.txt)$",
             "source": "check",
             "destination": "jde",
             "metodo": "NorthBankCheck"
           },
           {
+            "id": 4,
             "fileRule": "^Factura+([0-9])+(.PDF|.pdf)$",
             "source": "factura",
             "destination": "jde",
             "metodo": ""
           },
           {
+            "id": 5,
             "fileRule": "^Remito+([0-9])+(.PDF|.pdf)$",
             "source": "remito",
             "destination": "jde",
             "metodo": ""
           },
           {
+            "id": 6,
             "fileRule": "^Banco+([0-9])+(.CSV|.csv)$",
             "source": "bank",
             "destination": "jde",
             "metodo": ""
+          },
+          {
+            "id": 7,
+            "fileRule": "^30716412527_.*\\.(?i:pdf)$",
+            "source": "atina",
+            "destination": "jde",
+            "metodo": ""
           }
         ]
-       }
 }
  
