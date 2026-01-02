@@ -19,9 +19,11 @@
         <!-- Socket appender for Logstash -->
         <Socket name="logstash" host="logstash" port="5000" protocol="TCP">
             <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true">
+                <KeyValuePair key="auth_token" value="${env:LOGSTASH_AUTH_TOKEN:-no-token}"/>
                 <KeyValuePair key="application" value="ce-mule-base"/>
                 <KeyValuePair key="environment" value="${sys:mule_env:-local}"/>
                 <KeyValuePair key="log_type" value="mule"/>
+                <KeyValuePair key="worker_id" value="${env:WORKER_ID:-${sys:mule.worker.id:-unknown}}"/>
             </JsonLayout>
         </Socket>
     </Appenders>

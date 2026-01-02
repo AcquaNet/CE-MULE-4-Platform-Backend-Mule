@@ -1,0 +1,47 @@
+#
+#
+# ------------------------------------
+# CLOUDHUB DEPLOYMENT CONFIGURATION
+# ------------------------------------
+#
+# This is an example configuration for CloudHub deployments
+# Copy this file to cloudhub.properties and customize for your environment
+#
+# To use: Set the environment property in CloudHub to 'cloudhub'
+# Mule will load this file automatically
+#
+# ------------------------------------------------
+# HTTPS Ports
+# ------------------------------------------------
+http.port=8081
+https.port=8082
+
+# ------------------------------------------------
+# Elastic APM Configuration for CloudHub
+# ------------------------------------------------
+# APM Server URL via APISIX Gateway (external access)
+# Replace <your-apisix-host> with your actual APISIX gateway domain or IP
+# Examples:
+#   - elastic.apm.server_url=http://apm.company.com:9080/apm-server
+#   - elastic.apm.server_url=http://157.245.236.175:9080/apm-server
+elastic.apm.server_url=http://<your-apisix-host>:9080/apm-server
+
+# Environment identifier (appears in APM UI)
+elastic.apm.environment=cloudhub
+
+# Enable APM agent in CloudHub
+elastic.apm.enabled=true
+
+# Transaction sampling rate for CloudHub (10% to reduce overhead)
+# Set to 1.0 for 100% sampling if needed
+elastic.apm.transaction_sample_rate=0.1
+
+# Log level (ERROR, WARN, INFO, DEBUG)
+# Use ERROR or WARN in production to reduce log volume
+elastic.apm.log_level=WARN
+
+# ------------------------------------------------
+# CloudHub-Specific Settings
+# ------------------------------------------------
+# Add any other CloudHub-specific configurations here
+#

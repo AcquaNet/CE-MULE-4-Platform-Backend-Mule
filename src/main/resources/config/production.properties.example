@@ -1,0 +1,55 @@
+#
+#
+# ------------------------------------
+# PRODUCTION ENVIRONMENT CONFIGURATION
+# ------------------------------------
+#
+# This is an example configuration for production on-premises deployments
+# Copy this file to production.properties and customize for your environment
+#
+# To use: Set the environment property to 'production'
+#
+# ------------------------------------------------
+# HTTPS Ports
+# ------------------------------------------------
+http.port=8081
+https.port=8082
+
+# ------------------------------------------------
+# Elastic APM Configuration for Production
+# ------------------------------------------------
+# APM Server URL via APISIX Gateway (external/internal based on your setup)
+# Replace <your-apisix-host> with your production APISIX gateway
+# Examples:
+#   - elastic.apm.server_url=http://apisix-prod.company.com:9080/apm-server
+#   - elastic.apm.server_url=http://10.0.1.50:9080/apm-server (internal network)
+elastic.apm.server_url=http://<your-apisix-host>:9080/apm-server
+
+# Environment identifier
+elastic.apm.environment=production
+
+# Enable APM agent
+elastic.apm.enabled=true
+
+# Transaction sampling rate for production (10% recommended)
+# Lower rates reduce overhead while still providing insights
+elastic.apm.transaction_sample_rate=0.1
+
+# Log level for production (ERROR or WARN recommended)
+elastic.apm.log_level=ERROR
+
+# Capture body settings (reduce in production for security)
+elastic.apm.capture_body=errors
+
+# Stack trace limit (reduce for performance)
+elastic.apm.stack_trace_limit=25
+
+# ------------------------------------------------
+# Production Database Settings (example)
+# ------------------------------------------------
+# db.host=prod-db.company.com
+# db.port=3306
+# db.name=production_db
+# db.user=${secure::db.user}
+# db.password=${secure::db.password}
+#

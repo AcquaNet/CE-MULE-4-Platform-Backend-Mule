@@ -51,6 +51,12 @@
 			<version>1.11.7</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
+		<!-- Elastic APM Agent for Mule 4 -->
+		<dependency>
+			<groupId>co.elastic.apm</groupId>
+			<artifactId>mule4-agent</artifactId>
+			<version>0.4.0</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -64,6 +70,12 @@
 			<id>mulesoft-releases</id>
 			<name>MuleSoft Releases Repository</name>
 			<url>https://repository.mulesoft.org/releases/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>acquanet-central</id>
+			<name>Acqua Release Repository</name>
+			<url>https://jfrog.atina-connection.com/artifactory/libs-release</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
