@@ -126,15 +126,9 @@ vars.EmailReceived ++ {
 		<choice doc:name="Choice" doc:id="32c57964-e3cf-465f-9e68-3fd9737d587d" >
 			<when expression="#[(p('email_notificar_recepcion') as Boolean)]" >
 				<logger level="INFO" doc:name="Logger" doc:id="6e8d7101-9ea2-4206-a191-242253c788f1" message="#[payload]" />
-				<file:list doc:name="Check Email Template" doc:id="43b427ab-b72b-49c5-a4c4-e99f87b13e16" config-ref="File_Config" directoryPath="#[p('email_folder_root') ++ p('entidad.id') ++ p('email_template_folders')]" target="templateListFile">
-					<file:matcher filenamePattern="#[payload.templates.'email-received']" />
-				</file:list>
-				<choice doc:name="Choice" doc:id="942d8d89-e38c-47fc-85fb-0b08af7f7378" >
-					<when expression="#[sizeOf(vars.templateListFile)&gt;0]">
-						<file:read doc:name="Read Template" doc:id="37810288-605b-4680-b4da-329d839de8b5" config-ref="File_Config" path="#[p('email_folder_root') ++ p('entidad.id') ++ p('email_template_folders') ++ payload.templates.'email-received']" outputMimeType="application/json" outputEncoding="ISO-8859-1" target="templateHTML" />
-						<parse-template doc:name="Parse Template" doc:id="6f882317-2c33-4f45-ba4a-62db6e54dd5d" target="replyHtml" outputMimeType="text/html" outputEncoding="UTF-8" location="/private/tmp/process-mails/ATINA/config/email-templates/reply-mail-received.html">
+				<parse-template doc:name="Parse Template" doc:id="6f882317-2c33-4f45-ba4a-62db6e54dd5d" target="replyHtml" outputMimeType="text/html" outputEncoding="UTF-8" location="rules/ATINA/config/email-templates/reply-mail-received.html">
 				</parse-template>
-						<email:send doc:name="Send" doc:id="c7c1ba59-a33e-4325-a02a-70065b7f452b" config-ref="Email_SMTP" fromAddress="${main_smtp_user}">
+				<email:send doc:name="Send" doc:id="c7c1ba59-a33e-4325-a02a-70065b7f452b" config-ref="Email_SMTP" fromAddress="${main_smtp_user}">
 					<email:to-addresses>
 						<email:to-address value="#[payload.fromAddress]" />
 					</email:to-addresses>
@@ -142,12 +136,7 @@ vars.EmailReceived ++ {
 						<email:content><![CDATA[#[vars.replyHtml]]]></email:content>
 					</email:body>
 				</email:send>
-						<logger level="INFO" doc:name="Logger" doc:id="d09dd028-35ce-4690-9f2e-49797d18cbb0" message='#["Email Enviado: " ++ (payload.id as String)]' />
-					</when>
-					<otherwise >
-						<raise-error doc:name="Raise error" doc:id="bcfe35b8-cd24-441d-b7e3-10985ed65a73" type="MAIL:TEMPLATE_MISSING" description="#[p('email_folder_root') ++ p('entidad.id') ++ p('email_template_folders') ++ payload.templates.email-received ++ &quot;.json Missing&quot;] "/>
-					</otherwise>
-				</choice>
+				<logger level="INFO" doc:name="Logger" doc:id="d09dd028-35ce-4690-9f2e-49797d18cbb0" message='#["Email Enviado: " ++ (payload.id as String)]' />
 			</when>
 			<otherwise >
 				<logger level="INFO" doc:name="Logger" doc:id="456cc6ff-7910-4c45-9c0e-a56f68b5f368" message="Property email_notificar_recepcion is false"/>
