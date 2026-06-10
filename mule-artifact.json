@@ -21,8 +21,8 @@
         "id": "mule"
     },
     "requiredProduct": "MULE",
-    "minMuleVersion": "4.8.6",
-    "javaSpecificationVersions": ["17"],
+    "minMuleVersion": "4.6.0",
+    "javaSpecificationVersions": ["1.8"],
     "Description": "4.6.0, 1.8"
 }
 
