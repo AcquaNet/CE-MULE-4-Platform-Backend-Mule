@@ -4,7 +4,7 @@
 
 	<groupId>com.acqua</groupId>
 	<artifactId>ce-mule-base</artifactId>
-	<version>1.0.17</version>
+	<version>1.0.18</version>
 	<packaging>mule-application</packaging>
 
 	<name>CE-Base</name>
@@ -53,14 +53,14 @@
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-apikit-module</artifactId>
-			<version>1.13.2</version>
+			<version>1.13.3</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<!-- OpenTelemetry agent for Mule 4 (git/elastic-apm-mule4-agent/otel-mule4-agent): traces to Jaeger -->
 		<dependency>
 			<groupId>io.opentelemetry.mule4</groupId>
 			<artifactId>otel-mule4-agent</artifactId>
-			<version>0.2.0</version>
+			<version>0.3.0</version>
 		</dependency>
 		<!-- Tracing module: tenant_id as a logging variable (follows the event across threads) -->
 		<dependency>
