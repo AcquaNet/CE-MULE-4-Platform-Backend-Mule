@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Global Tenant Handler for Multi-Tenancy Support
+
+    This module extracts tenant_id from incoming requests and sets it as a tracing-module
+    logging variable: Mule keeps it in the logging context of every log line of the event,
+    across thread switches, and drops it when the event ends (log4j2: $${ctx:tenant_id}).
+    OpenSearch Document-Level Security filters on that field.
+
+    Tenant ID is extracted from (in order of priority):
+    1. tenant_id claim of the bearer token (decoded here, NOT verified: APISIX's openid-connect verified it,
+       and the workers are only reachable through APISIX)
+    2. X-Tenant-ID request header (APISIX drops the caller's own and sets it from that same claim)
+    3. tenant.id property, else "unknown"
+-->
+<mule xmlns:tracing="http://www.mulesoft.org/schema/mule/tracing"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+          http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/tracing http://www.mulesoft.org/schema/mule/tracing/current/mule-tracing.xsd">
+
+    <!--
+        Sub-flow to extract tenant_id and set it as a logging variable.
+        Call this at the beginning of your API flows using:
+        <flow-ref name="extract-tenant-id" />
+    -->
+    <sub-flow name="extract-tenant-id" doc:id="tenant-extraction-subflow">
+        <set-variable variableName="jwtClaims" doc:name="Claims from bearer token"
+                      value="#[%dw 2.0&#10;import fromBase64 from dw::core::Binaries&#10;import try from dw::Runtime&#10;import repeat from dw::core::Strings&#10;var seg = ((((attributes.headers['authorization'] default '') replace /^[Bb]earer\s+/ with '') splitBy '.')[1]) default ''&#10;var b64 = (seg replace /-/ with '+') replace /_/ with '/'&#10;var res = try(() -&gt; read(fromBase64(b64 ++ repeat('=', mod(4 - mod(sizeOf(b64), 4), 4))), 'application/json'))&#10;---&#10;if (res.success and (res.result is Object)) res.result else null]" />
+        <choice doc:name="Extract Tenant ID" doc:id="tenant-choice">
+            <!-- Priority 1: JWT tenant_id claim -->
+            <when expression="#[vars.jwtClaims != null and vars.jwtClaims.tenant_id is String and vars.jwtClaims.tenant_id != '']">
+                <set-variable variableName="tenantId"
+                              value="#[vars.jwtClaims.tenant_id]"
+                              doc:name="From JWT Claim" />
+                <logger doc:name="Log tenant from JWT" level="DEBUG"
+                        category="com.acqua.tenant"
+                        message="#['Tenant ID from JWT: ' ++ vars.tenantId]" />
+            </when>
+            <!-- Priority 2: X-Tenant-ID header -->
+            <when expression="#[attributes.headers['x-tenant-id'] != null and attributes.headers['x-tenant-id'] != '']">
+                <set-variable variableName="tenantId"
+                              value="#[attributes.headers['x-tenant-id']]"
+                              doc:name="From X-Tenant-ID Header" />
+                <logger doc:name="Log tenant from header" level="DEBUG"
+                        category="com.acqua.tenant"
+                        message="#['Tenant ID from header: ' ++ vars.tenantId]" />
+            </when>
+            <!-- Priority 3: Environment variable default -->
+            <when expression="#[p('tenant.id') != null and p('tenant.id') != '']">
+                <set-variable variableName="tenantId"
+                              value="#[p('tenant.id')]"
+                              doc:name="From Properties" />
+                <logger doc:name="Log tenant from properties" level="DEBUG"
+                        category="com.acqua.tenant"
+                        message="#['Tenant ID from properties: ' ++ vars.tenantId]" />
+            </when>
+            <!-- Default: unknown tenant -->
+            <otherwise>
+                <set-variable variableName="tenantId"
+                              value="unknown"
+                              doc:name="Default Unknown" />
+                <logger doc:name="Warn unknown tenant" level="WARN"
+                        category="com.acqua.tenant"
+                        message="No tenant_id found in request - using 'unknown'" />
+            </otherwise>
+        </choice>
+
+        <!-- Normalize tenant_id to lowercase -->
+        <set-variable variableName="tenantId"
+                      value="#[lower(vars.tenantId)]"
+                      doc:name="Normalize to Lowercase" />
+
+        <tracing:set-logging-variable variableName="tenant_id" value="#[vars.tenantId]"
+                                      doc:name="Set logging variable tenant_id" />
+
+        <logger doc:name="Log tenant" level="INFO"
+                category="com.acqua.tenant"
+                message="#['Request processing for tenant: ' ++ vars.tenantId]" />
+    </sub-flow>
+
+</mule>

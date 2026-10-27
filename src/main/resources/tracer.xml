@@ -1,35 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Include file to initialise the Mule agent -->
+<!-- OpenTelemetry agent: one span per flow/processor, exported via the worker's OTEL_* env (Jaeger).
+     service.name = this app's name, so apps sharing a worker show up as separate services. -->
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
-	<!-- Initialise Java APM agent -->
-	<object name="_apmStarter"
-		class="co.elastic.apm.mule4.agent.ApmStarter" />
+	<object name="_otelStarter" class="io.opentelemetry.mule4.agent.OtelStarter">
+		<property key="serviceName" value="${app.name}" />
+		<property key="serviceVersion" value="${ce.version}" />
+	</object>
 
-	<object doc:name="Object" name="_apmPipelineNotifications"
-		class="co.elastic.apm.mule4.agent.ApmPipelineNotificationListener" />
+	<object name="_otelPipelineNotifications"
+		class="io.opentelemetry.mule4.agent.OtelPipelineNotificationListener" />
 
-	<object doc:name="Object"
-		name="_apmMessageProcessorNotifications"
-		class="co.elastic.apm.mule4.agent.ApmMessageProcessorNotificationListener" />
+	<object name="_otelMessageProcessorNotifications"
+		class="io.opentelemetry.mule4.agent.OtelMessageProcessorNotificationListener" />
 
-	<object doc:name="Object" name="_apmExceptionNotifications"
-		class="co.elastic.apm.mule4.agent.ApmExceptionNotificationListener" />
+	<object name="_otelExceptionNotifications"
+		class="io.opentelemetry.mule4.agent.OtelExceptionNotificationListener" />
 
 	<notifications>
 		<notification event="PIPELINE-MESSAGE" />
 		<notification event="MESSAGE-PROCESSOR" />
 		<notification event="EXCEPTION" />
-		<notification-listener
-			ref="_apmMessageProcessorNotifications" />
-		<notification-listener
-			ref="_apmPipelineNotifications" />
-		<notification-listener
-			ref="_apmExceptionNotifications" />
+		<notification-listener ref="_otelMessageProcessorNotifications" />
+		<notification-listener ref="_otelPipelineNotifications" />
+		<notification-listener ref="_otelExceptionNotifications" />
 	</notifications>
 
 </mule>

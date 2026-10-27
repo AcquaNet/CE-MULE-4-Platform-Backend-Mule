@@ -18,8 +18,37 @@ xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response>
         </http:listener>
+        <!-- Extract tenant_id and set in MDC for logging -->
+        <flow-ref name="extract-tenant-id" doc:name="Extract Tenant ID" />
         <apikit:router config-ref="ce-backend-config" />
-         
+        <!-- APIkit's request errors -> HTTP status (the listener's error-response reads vars.httpStatus; without this
+             every one of them answered 500). Client errors are not logged as ERRORs. CE: no ee:transform. -->
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST" logException="false">
+                <set-variable variableName="httpStatus" value="400" />
+                <set-payload value='#[output application/json --- {message: "Bad request", detail: error.description}]' />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND" logException="false">
+                <set-variable variableName="httpStatus" value="404" />
+                <set-payload value='#[output application/json --- {message: "Resource not found"}]' />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED" logException="false">
+                <set-variable variableName="httpStatus" value="405" />
+                <set-payload value='#[output application/json --- {message: "Method not allowed"}]' />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE" logException="false">
+                <set-variable variableName="httpStatus" value="406" />
+                <set-payload value='#[output application/json --- {message: "Not acceptable"}]' />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE" logException="false">
+                <set-variable variableName="httpStatus" value="415" />
+                <set-payload value='#[output application/json --- {message: "Unsupported media type"}]' />
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <set-variable variableName="httpStatus" value="501" />
+                <set-payload value='#[output application/json --- {message: "Not implemented"}]' />
+            </on-error-propagate>
+        </error-handler>
     </flow>
     <flow name="ce-backend-console">
         <http:listener config-ref="ce-backend-httpListenerConfig" path="/console/*">

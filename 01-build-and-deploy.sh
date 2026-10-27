@@ -98,7 +98,12 @@ if [ "$UPDATED_VERSION" != "$NEW_VERSION" ]; then
     exit 1
 fi
 
+rm -f "${PROPERTIES_FILE}.bak"  # si no, el .bak queda empaquetado en el jar
 log_info "✓ Versión actualizada de $CURRENT_VERSION a $NEW_VERSION"
+
+# El pom lleva la misma versión: el Runtime Manager detecta releases nuevos por versión Maven
+mvn -q versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false
+VERSION="$NEW_VERSION"
 
 # Paso 2: Commit del cambio en Git
 log_info "Haciendo commit del cambio de versión..."
@@ -107,7 +112,7 @@ log_info "Haciendo commit del cambio de versión..."
 if [ ! -d ".git" ]; then
     log_warning "No se detectó repositorio Git. Se omitirá el commit."
 else
-    git add "$PROPERTIES_FILE"
+    git add "$PROPERTIES_FILE" pom.xml
     git commit -m "deploy $NEW_VERSION"
     
     if [ $? -ne 0 ]; then
@@ -119,7 +124,6 @@ fi
 
 # Nombres de archivos
 MULE_APP_JAR="${ARTIFACT_ID}-${VERSION}-mule-application.jar"
-TARGET_JAR="${ARTIFACT_ID}-${VERSION}.jar"
 
 # Paso 3: Limpiar y empaquetar
 log_info "Ejecutando mvn clean package..."
@@ -136,16 +140,7 @@ if [ ! -f "target/$MULE_APP_JAR" ]; then
     exit 1
 fi
 
-# Paso 4: Copiar y renombrar el archivo
-log_info "Copiando $MULE_APP_JAR a $TARGET_JAR..."
-cp "target/$MULE_APP_JAR" "target/$TARGET_JAR"
-
-if [ $? -ne 0 ]; then
-    log_error "Falló la copia del archivo"
-    exit 1
-fi
-
-# Paso 5: Deploy al repositorio
+# Paso 4: Deploy (classifier mule-application: el nombre que busca el Runtime Manager) al repositorio
 log_info "Deployando al repositorio $REPOSITORY_URL..."
 mvn deploy:deploy-file \
     -DgroupId="$GROUP_ID" \
@@ -153,7 +148,8 @@ mvn deploy:deploy-file \
     -Dversion="$VERSION" \
     -DrepositoryId="$REPOSITORY_ID" \
     -Dpackaging=jar \
-    -Dfile="target/$TARGET_JAR" \
+    -Dclassifier=mule-application \
+    -Dfile="target/$MULE_APP_JAR" \
     -Durl="$REPOSITORY_URL"
 
 if [ $? -ne 0 ]; then

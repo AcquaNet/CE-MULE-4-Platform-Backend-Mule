@@ -16,10 +16,12 @@
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
-        <!-- Socket appender for Logstash -->
-        <Socket name="logstash" host="logstash" port="5000" protocol="TCP">
+        <!-- Log ingestion: JSON over TCP to Fluent Bit. Docker: defaults below. CloudHub: set logs.host /
+             logs.port / logs.token as application properties (system properties): gateway host, 9100, LOG_INGEST_TOKEN -->
+        <Socket name="logs" host="${sys:logs.host:-log-ingest}" port="${sys:logs.port:-5000}" protocol="TCP" reconnectionDelayMillis="5000">
             <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true">
-                <KeyValuePair key="auth_token" value="${env:LOGSTASH_AUTH_TOKEN:-no-token}"/>
+                <KeyValuePair key="auth_token" value="${sys:logs.token:-${env:LOG_INGEST_TOKEN:-no-token}}"/>
+                <KeyValuePair key="tenant_id" value="$${ctx:tenant_id:-unknown}"/>
                 <KeyValuePair key="application" value="ce-mule-base"/>
                 <KeyValuePair key="environment" value="${sys:mule_env:-local}"/>
                 <KeyValuePair key="log_type" value="mule"/>
@@ -39,7 +41,7 @@
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="file"/>
-            <AppenderRef ref="logstash"/>
+            <AppenderRef ref="logs"/>
         </AsyncRoot>
     </Loggers>
 

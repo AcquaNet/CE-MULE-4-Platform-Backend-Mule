@@ -1,47 +1,39 @@
 #
-#
 # ------------------------------------
 # CLOUDHUB DEPLOYMENT CONFIGURATION
 # ------------------------------------
 #
-# This is an example configuration for CloudHub deployments
-# Copy this file to cloudhub.properties and customize for your environment
+# Logs and traces of a CloudHub app go to the platform through its APISIX gateway. Log4j and the
+# OpenTelemetry agent read SYSTEM properties, so the observability settings below are set in CloudHub
+# Runtime Manager > the application > Settings > Properties (they become system properties) -- not in a
+# properties file inside the app. <gateway> = the public host of the platform's APISIX.
 #
-# To use: Set the environment property in CloudHub to 'cloudhub'
-# Mule will load this file automatically
+# Prerequisites on the platform side:
+#   - a certificate CloudHub trusts on the gateway (setup-letsencrypt.sh); the local CA from a fresh install
+#     is not trusted by CloudHub's JVM
+#   - ports 9443 (HTTPS, traces) and 9100 (TCP, logs) reachable from CloudHub (allow its egress IPs)
+#   - LOG_INGEST_TOKEN and OTLP_INGEST_TOKEN from the platform's .env
 #
-# ------------------------------------------------
-# HTTPS Ports
-# ------------------------------------------------
+# ---------------- Set in CloudHub > Properties ----------------
+#
+# Logs: JSON over TCP to Fluent Bit via APISIX's stream proxy (log4j2.xml "logs" appender)
+#   logs.host=<gateway>
+#   logs.port=9100
+#   logs.token=<LOG_INGEST_TOKEN>
+#
+# Traces: OTLP/HTTP via APISIX (/otlp -> Jaeger), token header checked by the gateway
+#   otel.exporter.otlp.endpoint=https://<gateway>:9443/otlp
+#   otel.exporter.otlp.protocol=http/protobuf
+#   otel.exporter.otlp.headers=x-otlp-token=<OTLP_INGEST_TOKEN>
+#   otel.traces.exporter=otlp
+#   otel.metrics.exporter=none
+#   otel.logs.exporter=none
+#   otel.resource.attributes=deployment.environment=cloudhub,worker.id=cloudhub
+#   otel.traces.sampler=parentbased_traceidratio
+#   otel.traces.sampler.arg=0.1        (10% of requests; 1.0 = all)
+#
+# The service name in Jaeger is the app name (tracer.xml), version = ce.version.
+#
+# ---------------- App configuration (this file, mule_env=cloudhub) ----------------
 http.port=8081
 https.port=8082
-
-# ------------------------------------------------
-# Elastic APM Configuration for CloudHub
-# ------------------------------------------------
-# APM Server URL via APISIX Gateway (external access)
-# Replace <your-apisix-host> with your actual APISIX gateway domain or IP
-# Examples:
-#   - elastic.apm.server_url=http://apm.company.com:9080/apm-server
-#   - elastic.apm.server_url=http://157.245.236.175:9080/apm-server
-elastic.apm.server_url=http://<your-apisix-host>:9080/apm-server
-
-# Environment identifier (appears in APM UI)
-elastic.apm.environment=cloudhub
-
-# Enable APM agent in CloudHub
-elastic.apm.enabled=true
-
-# Transaction sampling rate for CloudHub (10% to reduce overhead)
-# Set to 1.0 for 100% sampling if needed
-elastic.apm.transaction_sample_rate=0.1
-
-# Log level (ERROR, WARN, INFO, DEBUG)
-# Use ERROR or WARN in production to reduce log volume
-elastic.apm.log_level=WARN
-
-# ------------------------------------------------
-# CloudHub-Specific Settings
-# ------------------------------------------------
-# Add any other CloudHub-specific configurations here
-#
