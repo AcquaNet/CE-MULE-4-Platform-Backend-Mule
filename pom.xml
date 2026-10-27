@@ -4,7 +4,7 @@
 
 	<groupId>com.acqua</groupId>
 	<artifactId>ce-mule-base</artifactId>
-	<version>1.0.19</version>
+	<version>1.0.20</version>
 	<packaging>mule-application</packaging>
 
 	<name>CE-Base</name>
